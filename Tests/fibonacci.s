@@ -50,6 +50,7 @@ fib:
 # Compute and return fibonacci number
 beqz $a0, zero      # if n == 0 return 0
 beq $a0, 1, one     # if n == 1 return 1
+beq $a0, 1, two     # if n == 2 return 2
 
 # Calling fib(n-1)
 sub $sp, $sp, 4     # storing return address
@@ -66,7 +67,22 @@ add $sp, $sp, 4
 sub $sp, $sp, 4     # Push return value
 sw $v0, 0($sp)
 
+
 # Calling fib(n-2)
+sub $sp, $sp, 4     # storing return address
+sw $ra, 0($sp)
+
+sub $a0, $a0, 2     # n = n-2
+jal fib             # call fib(n-2)
+add $a0, $a0, 2
+
+lw $ra, 0($sp)      # restoring return address
+add $sp, $sp, 4
+
+sub $sp, $sp, 4     #Push return value to stack 
+sw $v0, 0($sp)
+
+# Calling fib(n-3)
 sub $sp, $sp, 4     # storing return address
 sw $ra, 0($sp)
 
@@ -80,7 +96,12 @@ add $sp, $sp, 4
 lw $s7, 0($sp)      # Pop return value
 add $sp, $sp, 4
 
-add $v0, $v0, $s7   # f(n - 2)+fib(n-1)
+add $v0, $v0, $s7   # f(n - 2)+fib(n-1) = v0
+
+lw $s6, 0($sp)      #Pop return value
+add $sp, $sp, 4
+
+add $v0, $v0, $s6   # v0 + fib(n-3)
 
 jr $ra              # decrement/next in stack
 
